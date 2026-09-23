@@ -21,7 +21,7 @@ export function getTasks(options) {
   const params = new URLSearchParams()
 
   if (options) {
-    const { page, size } = options
+    const { page, size, sort, ...filters } = options
 
     if (page !== undefined && page !== null) {
       params.set('page', page)
@@ -29,6 +29,13 @@ export function getTasks(options) {
 
     if (size !== undefined && size !== null) {
       params.set('size', size)
+    }
+
+    for (const [key, value] of Object.entries(filters)) {
+      if (value === undefined || value === null) continue
+      if (typeof value === 'object' || typeof value === 'function') continue
+      if (typeof value === 'string' && value.trim() === '') continue
+      params.set(key, value)
     }
   }
 
