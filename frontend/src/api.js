@@ -32,7 +32,17 @@ export function getTasks(options) {
     }
   }
 
-  const query = params.toString()
+  let query = params.toString()
+
+  const field = options?.sort?.field
+  const direction = options?.sort?.direction
+  if (typeof field === 'string' && field.trim() !== '' && direction) {
+    // URLSearchParams percent-encodes the comma; build this segment manually
+    // so the backend receives `sort=field,direction` unencoded.
+    const sortParam = `sort=${field},${String(direction).toLowerCase()}`
+    query = query ? `${query}&${sortParam}` : sortParam
+  }
+
   const url = query ? `${BASE_URL}/tasks?${query}` : `${BASE_URL}/tasks`
   return fetch(url).then(handleResponse)
 }
