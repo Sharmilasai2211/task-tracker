@@ -35,6 +35,10 @@ lerna-debug.log*
 *.iml
 *.ipr
 out/
+prompts/
+CapStoneProject-Brownfield (1).docx
+docs/codemie/
+.codemie/
 
 # =========================
 # VS Code
