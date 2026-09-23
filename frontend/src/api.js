@@ -17,8 +17,24 @@ async function handleResponse(response) {
   return data
 }
 
-export function getTasks() {
-  return fetch(`${BASE_URL}/tasks`).then(handleResponse)
+export function getTasks(options) {
+  const params = new URLSearchParams()
+
+  if (options) {
+    const { page, size } = options
+
+    if (page !== undefined && page !== null) {
+      params.set('page', page)
+    }
+
+    if (size !== undefined && size !== null) {
+      params.set('size', size)
+    }
+  }
+
+  const query = params.toString()
+  const url = query ? `${BASE_URL}/tasks?${query}` : `${BASE_URL}/tasks`
+  return fetch(url).then(handleResponse)
 }
 
 export function createTask(task) {
