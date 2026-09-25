@@ -17,8 +17,35 @@ async function handleResponse(response) {
   return data
 }
 
-export function getTasks() {
-  return fetch(`${BASE_URL}/tasks`).then(handleResponse)
+const RESERVED_OPTION_KEYS = ['page', 'size', 'sort']
+
+export function getTasks(options) {
+  const params = []
+
+  if (options) {
+    if (options.page !== null && options.page !== undefined) {
+      params.push(`page=${encodeURIComponent(options.page)}`)
+    }
+    if (options.size !== null && options.size !== undefined) {
+      params.push(`size=${encodeURIComponent(options.size)}`)
+    }
+    if (options.sort && options.sort.field && options.sort.direction) {
+      const field = encodeURIComponent(options.sort.field)
+      const direction = encodeURIComponent(options.sort.direction)
+      params.push(`sort=${field},${direction}`)
+    }
+
+    for (const [key, value] of Object.entries(options)) {
+      if (RESERVED_OPTION_KEYS.includes(key)) continue
+      if (value === null || value === undefined) continue
+      if (typeof value === 'object') continue
+      if (typeof value === 'string' && value.trim() === '') continue
+      params.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    }
+  }
+
+  const query = params.length > 0 ? `?${params.join('&')}` : ''
+  return fetch(`${BASE_URL}/tasks${query}`).then(handleResponse)
 }
 
 export function createTask(task) {
