@@ -71,7 +71,7 @@ Base path: `/api`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/tasks` | List all tasks |
+| GET | `/api/tasks` | List all tasks (frontend helper supports optional paging/sort/filter query params) |
 | POST | `/api/tasks` | Create a task |
 | PUT | `/api/tasks/{id}` | Update a task |
 | DELETE | `/api/tasks/{id}` | Delete a task |
