@@ -78,6 +78,16 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### Paging / sorting / filtering (frontend helper)
+
+The frontend API helper `getTasks(options)` (in `frontend/src/api.js`) supports adding query parameters when requesting tasks:
+
+- Paging: `getTasks({ page: 0, size: 10 })` → `/api/tasks?page=0&size=10`
+- Sorting: `getTasks({ sort: { field: 'title', direction: 'asc' } })` → `/api/tasks?sort=title,asc`
+- Filtering: `getTasks({ status: 'DONE', title: 'report' })` → `/api/tasks?status=DONE&title=report`
+
+Calling `getTasks()` with no options keeps the request as `/api/tasks` (no query string).
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
