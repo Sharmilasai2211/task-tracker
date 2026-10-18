@@ -78,6 +78,37 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+## Frontend `getTasks(options?)`
+
+`getTasks` in `frontend/src/api.js` accepts an optional options object and turns it into query parameters on `GET /api/tasks`.
+
+```js
+import { getTasks } from './api'
+
+// Paging -> /api/tasks?page=0&size=10
+await getTasks({ page: 0, size: 10 })
+
+// Sorting -> /api/tasks?sort=title,asc
+await getTasks({ sort: { field: 'title', direction: 'asc' } })
+
+// Filtering -> /api/tasks?status=DONE&title=report
+await getTasks({ status: 'DONE', title: 'report' })
+
+// No options -> /api/tasks (no query string, no trailing "?")
+await getTasks()
+```
+
+Rules:
+- `getTasks()`, `getTasks(null)` and `getTasks({})` all request plain `/api/tasks` with no query string.
+- `page` and `size` are sent whenever they are not `null`/`undefined`, so `page: 0` is kept.
+- `sort` is sent only when both `field` and `direction` are non-empty, as `sort=<field>,<direction>`.
+- `page`, `size` and `sort` are reserved and never treated as filters. Any other scalar key (string, number, boolean) is sent as a filter; `null`/`undefined`, blank strings, objects and arrays are omitted.
+- Keys and values are URI-encoded.
+
+> The current backend `GET /api/tasks` does not read these parameters yet, so it ignores them and returns all tasks. This change only affects the request the frontend sends.
+
+To check the generated URL, open the browser dev tools Network tab (or temporarily log the argument passed to `fetch` in `api.js`) and call `getTasks` with each example above.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
