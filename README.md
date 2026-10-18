@@ -78,6 +78,39 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+## Frontend: `getTasks(options)`
+
+`getTasks` in `frontend/src/api.js` accepts an optional options object and turns it into query parameters on `GET /api/tasks`.
+
+| Option | Shape | Query param |
+|---|---|---|
+| `page`, `size` | numbers (`page: 0` is kept) | `page=0&size=10` |
+| `sort` | `{ field, direction }` | `sort=title,asc` (comma left unencoded) |
+| `status`, `title`, … | non-empty scalars | `status=DONE&title=report` |
+
+Null/undefined values, blank strings, objects and arrays are skipped, and `page`, `size` and `sort` are never treated as filters. Invalid option shapes never throw; only well-formed params are sent.
+
+```js
+import { getTasks } from './api'
+
+// No options: GET /api/tasks (no query string)
+await getTasks()
+
+// Paging: GET /api/tasks?page=0&size=10
+await getTasks({ page: 0, size: 10 })
+
+// Sorting: GET /api/tasks?sort=title,asc
+await getTasks({ sort: { field: 'title', direction: 'asc' } })
+
+// Filtering: GET /api/tasks?status=DONE&title=report
+await getTasks({ status: 'DONE', title: 'report' })
+
+// Combined: GET /api/tasks?page=1&size=5&sort=title,desc&status=TODO
+await getTasks({ page: 1, size: 5, sort: { field: 'title', direction: 'desc' }, status: 'TODO' })
+```
+
+> The backend does not yet apply these params (frontend-only change); it currently returns all tasks.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
