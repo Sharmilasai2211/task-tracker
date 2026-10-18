@@ -78,6 +78,56 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### Frontend: `getTasks(options)`
+
+`getTasks` in `frontend/src/api.js` takes an optional `options` object and turns it into query parameters on `GET /api/tasks`. Every option is optional, and you can combine them.
+
+```js
+import { getTasks } from './api'
+```
+
+**No options** — the URL is unchanged, with no query string:
+
+```js
+getTasks()          // GET http://localhost:8050/api/tasks
+getTasks({})        // GET http://localhost:8050/api/tasks
+```
+
+**Paging** — `page` and `size`. `page: 0` is valid and is sent:
+
+```js
+getTasks({ page: 0, size: 10 })   // GET .../api/tasks?page=0&size=10
+```
+
+**Sorting** — `sort` is `{ field, direction }`, where `direction` is `'asc'` or `'desc'`. The comma in the output is not URL-encoded:
+
+```js
+getTasks({ sort: { field: 'title', direction: 'asc' } })   // GET .../api/tasks?sort=title,asc
+```
+
+**Filtering** — `status` and `title` (and any other scalar key) are sent as query parameters:
+
+```js
+getTasks({ status: 'DONE', title: 'report' })   // GET .../api/tasks?status=DONE&title=report
+```
+
+**Combined:**
+
+```js
+getTasks({ page: 1, size: 5, sort: { field: 'title', direction: 'desc' }, status: 'TODO' })
+// GET .../api/tasks?page=1&size=5&sort=title,desc&status=TODO
+```
+
+Rules for what gets sent:
+
+- Values that are `null`, `undefined`, empty or whitespace-only strings, or non-finite numbers are omitted.
+- `sort` is sent only when `field` is a non-empty string and `direction` is `asc` or `desc`.
+- `page`, `size` and `sort` are reserved and are never treated as filters.
+- Objects and arrays are ignored, and malformed input never throws. Only well-formed parameters are sent.
+- Values are URL-encoded.
+
+> The helper only builds the request URL. Paging, sorting and filtering take effect only if the backend supports these query parameters.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
