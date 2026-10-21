@@ -78,6 +78,21 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### Frontend `getTasks(options)`
+
+`getTasks` in `frontend/src/api.js` accepts an optional options object and turns it into query parameters:
+
+```js
+getTasks()                                                  // /tasks
+getTasks({ page: 0, size: 10 })                             // /tasks?page=0&size=10
+getTasks({ sort: { field: 'title', direction: 'asc' } })    // /tasks?sort=title,asc
+getTasks({ status: 'DONE', title: 'report' })               // /tasks?status=DONE&title=report
+```
+
+Null/undefined values and empty or whitespace-only strings are omitted; `0` is kept. Other scalar keys are passed through as filters, while objects and arrays are ignored.
+
+> Note: the backend does not currently read these parameters, so they are ignored server-side and all tasks are still returned.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**

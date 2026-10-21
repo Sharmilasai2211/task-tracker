@@ -17,8 +17,54 @@ async function handleResponse(response) {
   return data
 }
 
-export function getTasks() {
-  return fetch(`${BASE_URL}/tasks`).then(handleResponse)
+const RESERVED_KEYS = new Set(['page', 'size', 'sort'])
+
+function isPresent(value) {
+  return value !== null && value !== undefined
+}
+
+function buildTasksQuery(options) {
+  const parts = []
+  const add = (key, value) =>
+    parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+
+  if (!options || typeof options !== 'object') {
+    return ''
+  }
+
+  const { page, size, sort, ...filters } = options
+
+  if (isPresent(page)) add('page', page)
+  if (isPresent(size)) add('size', size)
+
+  const field = typeof sort?.field === 'string' ? sort.field.trim() : ''
+  const direction = typeof sort?.direction === 'string' ? sort.direction.trim() : ''
+  if (field && direction) {
+    // Comma is kept literal so the URL reads sort=title,asc
+    parts.push(`sort=${encodeURIComponent(field)},${encodeURIComponent(direction)}`)
+  }
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (RESERVED_KEYS.has(key) || !isPresent(value)) continue
+    if (!['string', 'number', 'boolean'].includes(typeof value)) continue
+    if (typeof value === 'string' && value.trim() === '') continue
+    add(key, typeof value === 'string' ? value.trim() : value)
+  }
+
+  return parts.length ? `?${parts.join('&')}` : ''
+}
+
+/**
+ * @param {{
+ *   page?: number,
+ *   size?: number,
+ *   sort?: { field: string, direction: 'asc' | 'desc' },
+ *   status?: string,
+ *   title?: string,
+ * }} [options]
+ */
+export function getTasks(options) {
+  return fetch(`${BASE_URL}/tasks${buildTasksQuery(options)}`).then(handleResponse)
 }
 
 export function createTask(task) {
