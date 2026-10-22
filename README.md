@@ -78,6 +78,19 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### Frontend `getTasks()` helper
+
+`frontend/src/api.js` exports `getTasks(options?)`, which builds the `GET /api/tasks` query string from an optional object:
+
+```js
+getTasks()                                            // GET /api/tasks
+getTasks({ page: 0, size: 10 })                       // GET /api/tasks?page=0&size=10
+getTasks({ sort: { field: 'title', direction: 'asc' } }) // GET /api/tasks?sort=title,asc
+getTasks({ status: 'DONE', title: 'report' })         // GET /api/tasks?status=DONE&title=report
+```
+
+`page`/`size` are included whenever not `null`/`undefined` (so `page: 0` is kept), `sort` is only added when both `field` and `direction` are provided, and filter values (`status`, `title`) that are `null`, `undefined`, or blank strings are omitted.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**

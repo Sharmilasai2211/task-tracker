@@ -17,8 +17,46 @@ async function handleResponse(response) {
   return data
 }
 
-export function getTasks() {
-  return fetch(`${BASE_URL}/tasks`).then(handleResponse)
+function buildTasksQueryString(options) {
+  if (!options || typeof options !== 'object') {
+    return ''
+  }
+
+  const params = []
+  const appendParam = (key, value) => {
+    params.push(encodeURIComponent(key) + '=' + encodeURIComponent(value))
+  }
+  const appendIfPresent = (key, value) => {
+    if (value === null || value === undefined) return
+    appendParam(key, value)
+  }
+  const appendFilterParam = (key, value) => {
+    if (value === null || value === undefined) return
+    if (typeof value === 'string' && value.trim() === '') return
+    appendParam(key, value)
+  }
+
+  appendIfPresent('page', options.page)
+  appendIfPresent('size', options.size)
+
+  if (options.sort && typeof options.sort === 'object') {
+    const fieldStr = options.sort.field == null ? '' : String(options.sort.field).trim()
+    const directionStr = options.sort.direction == null ? '' : String(options.sort.direction).trim()
+    if (fieldStr && directionStr) {
+      // comma kept literal (not percent-encoded) so sort value matches "field,direction" exactly
+      params.push('sort=' + encodeURIComponent(fieldStr) + ',' + encodeURIComponent(directionStr))
+    }
+  }
+
+  appendFilterParam('status', options.status)
+  appendFilterParam('title', options.title)
+
+  return params.length > 0 ? ('?' + params.join('&')) : ''
+}
+
+export function getTasks(options) {
+  const queryString = buildTasksQueryString(options)
+  return fetch(`${BASE_URL}/tasks${queryString}`).then(handleResponse)
 }
 
 export function createTask(task) {
