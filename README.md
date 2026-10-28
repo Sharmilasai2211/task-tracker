@@ -78,6 +78,47 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### `getTasks(options)` (frontend helper)
+
+`getTasks` in `frontend/src/api.js` takes an optional `options` object and turns it into a query string on `GET /api/tasks`.
+
+> **Note:** the backend `GET /api/tasks` endpoint does not read these query parameters yet and always returns all tasks. The client sends them, but they have no effect until the server supports them.
+
+**No options** — the URL stays exactly `/api/tasks` (no `?`). Invalid options (`null`, arrays, non-objects) are ignored the same way.
+
+```js
+getTasks()
+// GET http://localhost:8050/api/tasks
+```
+
+**Paging** — `page` and `size` are sent when they are numbers (or other scalars). `0` is kept.
+
+```js
+getTasks({ page: 0, size: 10 })
+// GET http://localhost:8050/api/tasks?page=0&size=10
+```
+
+**Sorting** — `sort: { field, direction }` becomes `sort=<field>,<direction>`. The comma is left unencoded. If `direction` is empty, only `sort=<field>` is sent. A sort without a `field` is ignored.
+
+```js
+getTasks({ sort: { field: 'title', direction: 'asc' } })
+// GET http://localhost:8050/api/tasks?sort=title,asc
+```
+
+**Filtering** — any other key is treated as a filter (for example `status` and `title`). Only string, boolean and finite number values are sent. `null`, `undefined`, empty or whitespace-only strings, objects and arrays are skipped, and strings are trimmed. `page`, `size` and `sort` are reserved and never treated as filters.
+
+```js
+getTasks({ status: 'DONE', title: 'report' })
+// GET http://localhost:8050/api/tasks?status=DONE&title=report
+```
+
+Options can be combined. Parameters are added in this order: `page`, `size`, `sort`, then filters.
+
+```js
+getTasks({ page: 1, size: 5, sort: { field: 'title', direction: 'desc' }, status: 'TODO' })
+// GET http://localhost:8050/api/tasks?page=1&size=5&sort=title,desc&status=TODO
+```
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
