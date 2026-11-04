@@ -2,8 +2,11 @@ package com.example.backend.controller;
 
 import com.example.backend.dto.TaskRequest;
 import com.example.backend.model.Task;
+import com.example.backend.model.TaskStatus;
 import com.example.backend.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -28,8 +30,10 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
+    public Page<Task> getTasks(@RequestParam(required = false) TaskStatus status,
+                               @RequestParam(required = false) String q,
+                               Pageable pageable) {
+        return taskService.getTasks(status, q, pageable);
     }
 
     @PostMapping

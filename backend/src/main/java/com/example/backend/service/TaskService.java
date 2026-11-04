@@ -5,9 +5,9 @@ import com.example.backend.exception.ResourceNotFoundException;
 import com.example.backend.model.Task;
 import com.example.backend.model.TaskStatus;
 import com.example.backend.repository.TaskRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class TaskService {
@@ -18,8 +18,9 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
+    public Page<Task> getTasks(TaskStatus status, String q, Pageable pageable) {
+        String normalizedQuery = (q == null || q.isBlank()) ? null : q.trim();
+        return taskRepository.search(status, normalizedQuery, pageable);
     }
 
     public Task createTask(TaskRequest request) {

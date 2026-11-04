@@ -2,9 +2,13 @@ function formatStatus(status) {
   return status.replace('_', ' ')
 }
 
-function TaskTable({ tasks, onEdit, onDelete }) {
+function TaskTable({ tasks, isFiltered, onEdit, onDelete }) {
   if (tasks.length === 0) {
-    return <p className="empty">No tasks yet. Add one above.</p>
+    return (
+      <p className="empty">
+        {isFiltered ? 'No tasks match the current filters.' : 'No tasks yet. Add one above.'}
+      </p>
+    )
   }
 
   return (

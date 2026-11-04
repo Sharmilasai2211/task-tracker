@@ -98,6 +98,33 @@ button.danger {
   border-color: var(--danger);
 }
 
+.task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.field-grow {
+  flex: 1;
+  min-width: 180px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
 .task-table {
   width: 100%;
   border-collapse: collapse;

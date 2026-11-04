@@ -17,8 +17,17 @@ async function handleResponse(response) {
   return data
 }
 
-export function getTasks() {
-  return fetch(`${BASE_URL}/tasks`).then(handleResponse)
+// Returns the full Spring Page object: { content, totalElements, totalPages, number, size, ... }
+export function getTasks({ status, q, page, size, sort } = {}) {
+  const query = new URLSearchParams()
+  const params = { status, q, page, size, sort }
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      query.set(key, value)
+    }
+  }
+  const qs = query.toString()
+  return fetch(`${BASE_URL}/tasks${qs ? `?${qs}` : ''}`).then(handleResponse)
 }
 
 export function createTask(task) {
