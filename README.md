@@ -71,7 +71,7 @@ Base path: `/api`
 
 | Method | Path | Description |
 |---|---|---|
-| GET | `/api/tasks` | List all tasks |
+| GET | `/api/tasks` | List tasks as a Spring `Page` (`content` + paging metadata). Optional query params: `status` (`TODO`, `IN_PROGRESS`, `DONE`; invalid value → 400), `q` (case-insensitive search in title or description), `page`, `size`, `sort` |
 | POST | `/api/tasks` | Create a task |
 | PUT | `/api/tasks/{id}` | Update a task |
 | DELETE | `/api/tasks/{id}` | Delete a task |
@@ -81,7 +81,7 @@ Task fields: `title` (required, 3–100 chars), `description` (optional, up to 5
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
-Make sure the backend is running on port 8050 first. Check http://localhost:8050/api/tasks directly in a browser — it should return `[]` or a JSON array.
+Make sure the backend is running on port 8050 first. Check http://localhost:8050/api/tasks directly in a browser — it should return a JSON page object with a `content` array.
 
 **CORS error in the browser console**
 The backend only allows requests from `http://localhost:5173`. If you changed the frontend's dev port, update the allowed origin in `backend/src/main/java/com/example/backend/config/CorsConfig.java`.
