@@ -1,5 +1,5 @@
 function formatStatus(status) {
-  return status.replace('_', ' ')
+  return status.replace(/_/g, ' ')
 }
 
 function TaskTable({ tasks, onEdit, onDelete }) {

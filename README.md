@@ -78,6 +78,8 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+**UI behavior:** the task list displays status labels with every underscore replaced by a space (for example, `WAITING_FOR_REVIEW` displays as `WAITING FOR REVIEW`, and `IN_PROGRESS` as `IN PROGRESS`).
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
