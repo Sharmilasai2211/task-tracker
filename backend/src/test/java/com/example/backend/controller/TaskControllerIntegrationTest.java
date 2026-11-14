@@ -53,6 +53,50 @@ class TaskControllerIntegrationTest {
     }
 
     @Test
+    void createTask_withInvalidStatus_returns400WithStatusFieldError() throws Exception {
+        String body = """
+                {"title": "Valid title", "status": "DONEE"}
+                """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").isNotEmpty())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty())
+                .andExpect(jsonPath("$.fieldErrors.status").isNotEmpty());
+    }
+
+    @Test
+    void updateTask_withInvalidStatus_returns400WithStatusFieldError() throws Exception {
+        String body = """
+                {"title": "Valid title", "status": "DONEE"}
+                """;
+
+        mockMvc.perform(put("/api/tasks/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty())
+                .andExpect(jsonPath("$.fieldErrors.status").isNotEmpty());
+    }
+
+    @Test
+    void createTask_withMalformedJson_returns400WithoutFieldErrors() throws Exception {
+        String body = "{\"title\": \"Valid title\", ";
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").isNotEmpty())
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    @Test
     void updateTask_whenNotFound_returns404() throws Exception {
         String body = """
                 {"title": "Does not exist"}
