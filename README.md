@@ -78,6 +78,28 @@ Base path: `/api`
 
 Task fields: `title` (required, 3–100 chars), `description` (optional, up to 500 chars), `status` (`TODO`, `IN_PROGRESS`, `DONE`).
 
+### Error responses
+
+Errors are returned as an `ApiError` JSON body: `timestamp`, `status`, `error`, `message`, `fieldErrors` (a field-name → message map, or `null` when not field-specific).
+
+**Invalid `status` value** — `POST /api/tasks` and `PUT /api/tasks/{id}` return `400 Bad Request` with the same `ApiError` shape when the request JSON contains a `status` that is not one of `TODO`, `IN_PROGRESS`, `DONE`:
+
+```json
+{
+  "timestamp": "2026-01-01T12:00:00Z",
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Invalid task status: 'BLOCKED'",
+  "fieldErrors": {
+    "status": "Invalid value 'BLOCKED'. Allowed values: TODO, IN_PROGRESS, DONE"
+  }
+}
+```
+
+Other validation failures (e.g. a blank `title`) keep returning `400` with `error: "Validation Failed"` and the offending field in `fieldErrors` (e.g. `fieldErrors.title`). A request body that is not valid JSON returns `400` with `message: "Malformed JSON request"` and `fieldErrors: null`.
+
+> No database scripts or schema/data changes are required for this behavior — it only affects request deserialization and error handling in the web layer; the stored `TaskStatus` values and columns are unchanged.
+
 ## Troubleshooting
 
 **Frontend shows a network/fetch error or tasks never load**
