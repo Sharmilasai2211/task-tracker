@@ -7,6 +7,11 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -50,6 +55,53 @@ class TaskControllerIntegrationTest {
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.fieldErrors.title").exists());
+    }
+
+    @Test
+    void createTask_withInvalidStatus_returns400WithStatusFieldError() throws Exception {
+        String body = """
+                {"title": "Bad status", "status": "NOT_A_STATUS"}
+                """;
+
+        mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value(containsString("NOT_A_STATUS")))
+                .andExpect(jsonPath("$.fieldErrors.status").value(containsString("NOT_A_STATUS")))
+                .andExpect(jsonPath("$.fieldErrors.status").value(containsString("TODO, IN_PROGRESS, DONE")));
+    }
+
+    @Test
+    void updateTask_withInvalidStatus_returns400WithStatusFieldError() throws Exception {
+        String createBody = """
+                {"title": "To update"}
+                """;
+        String response = mockMvc.perform(post("/api/tasks")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createBody))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        Matcher idMatcher = Pattern.compile("\"id\"\\s*:\\s*(\\d+)").matcher(response);
+        assertTrue(idMatcher.find());
+        long id = Long.parseLong(idMatcher.group(1));
+
+        String updateBody = """
+                {"title": "To update", "status": "FINISHED"}
+                """;
+
+        mockMvc.perform(put("/api/tasks/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.message").value(containsString("FINISHED")))
+                .andExpect(jsonPath("$.fieldErrors.status").value(containsString("FINISHED")));
     }
 
     @Test
